@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNet.Identity;
+@{
+    ViewBag.Title = "Настройка";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content__header">
+    <h2>Настройка</h2>
+</div>
+
+<div class="card">
+    <div class="card__header">
+        <h2>Настройка профиля</h2>
+    </div>
+    <div class="card__body">
+        <a data-toggle="modal" onclick="
+                       $.ajaxSetup({ cache: false });
+                       $.get('@Url.Content("~/Account/Edit")', function (data){
+                       $('#modal-body1').html(data);});" class="btn btn--light" href="#Edit">Редактирование профиля</a>
+        <a data-toggle="modal"
+           onclick="
+                       $.ajaxSetup({ cache: false });
+                       $.get('@Url.Content("~/Account/EditPassword")', function (data){
+                       $('#modal-body').html(data);});" class="btn btn--light" href="#Password">Изминение пароля</a>
+    </div>
+</div>
+<div class="modal fade" id="Edit">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:fit-content;">
+            <div class="modal-header">
+                <h4 class="modal-title">Редактирование профиля</h4>
+            </div>
+            <div id="modal-body1" class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="Password">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:fit-content;">
+            <div class="modal-header">
+                <h4 class="modal-title">Изминение пароля</h4>
+            </div>
+            <div id="modal-body" class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>

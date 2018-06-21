@@ -1,0 +1,121 @@
+﻿@model IEnumerable<DataBase.Recording>
+
+@{
+    ViewBag.Title = "Запись";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card__header">
+        <h2>Услуги</h2>
+
+    </div>
+
+    <div class="card__body">
+        <a data-toggle="modal"
+           onclick="
+                       $.ajaxSetup({ cache: false });
+                       $.get('@Url.Content("~/Entry/EntryInc")', function (data){
+                       $('#modal-body1').html(data);});"
+           href="#AddCategory" class="btn btn-success">Записать</a>
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <th>
+                        Клиент
+                    </th>
+                    <th>
+                        Время
+                    </th>
+                    <th>
+                        Сумма
+                    </th>
+                    <th>
+                        Редактирование
+                    </th>
+                    <th>
+                        Просмотр
+                    </th>
+                    <th>
+                        Удаление
+                    </th>
+                </tr>
+
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem=>item.Clients.FIO)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Times)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Sum)
+                    </td>
+                    <td>
+                        <a data-toggle="modal"
+                           onclick="
+                       $.ajaxSetup({ cache: false });
+                       $.get('@Url.Content("~/Entry/Edit/"+item.Id)', function (data){
+                       $('#modal-body').html(data);});"
+                           href="#Edit" class="btn btn-primary btn--icon"><i class="zmdi zmdi-refresh"></i></a>
+                    </td>
+                    <td>
+                        <a data-toggle="modal"
+                           onclick="
+                       $.ajaxSetup({ cache: false });
+                       $.get('@Url.Content("~/Entry/Views/"+item.Id)', function (data){
+                       $('#modal-body2').html(data);});"
+                           href="#Views" class="btn btn-success btn--icon"><i class="zmdi zmdi-more-vert"></i></a>
+                    </td>
+                    <td>
+                        <a data-toggle="modal"
+                           onclick="
+
+                       lan('@Url.Content("~/Entry/Remove/"+item.Id)')"
+                           id="#" class="btn btn-danger btn--icon"><i class="zmdi zmdi-close"></i></a>
+                    </td>
+                </tr>
+                }
+
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="AddCategory">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:fit-content;">
+            <div class="modal-header">
+                <h4 class="modal-title">Запись</h4>
+            </div>
+            <div id="modal-body1" class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="Edit">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:fit-content;">
+            <div class="modal-header">
+                <h4 class="modal-title">Редактирование запись</h4>
+            </div>
+            <div id="modal-body" class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="Views">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:fit-content;">
+            <div class="modal-header">
+                <h4 class="modal-title">Просмотр записи</h4>
+            </div>
+            <div id="modal-body2" class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>

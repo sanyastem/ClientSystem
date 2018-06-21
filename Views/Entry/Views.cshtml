@@ -1,0 +1,44 @@
+﻿@model DataBase.Recording
+@{ 
+    Layout = null;
+}
+<div class="modal-body">
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            Имя клиента
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Clients.FIO)
+        </dd>
+
+        <dt>
+            Название услуги
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Service.Name)
+        </dd>
+
+        <dt>
+            Время
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Times)
+        </dd>
+
+        <dt>
+            Цена
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Sum)
+        </dd>
+
+    </dl>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-link" data-dismiss="modal">Закрыть</button>
+    </div>
+</div>

@@ -1,0 +1,85 @@
+﻿@model IEnumerable<DataBase.CategoryOfServices>
+
+@{
+    ViewBag.Title = "Категория услуг";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="card__header">
+        <h2>Категория услуг</h2>
+
+    </div>
+
+    <div class="card__body">
+        <a data-toggle="modal"
+           onclick="
+                       $.ajaxSetup({ cache: false });
+                       $.get('@Url.Content("~/Services/AddCategory")', function (data){
+                       $('#modal-body1').html(data);});"
+           href="#AddCategory" class="btn btn-success">Добавить категорию услуги</a>
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <th>
+                        Названия категории
+                    </th>
+                    <th>
+                        Редактирование
+                    </th>
+                    <th>
+                        Просмотр
+                    </th>
+                </tr>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            <a data-toggle="modal"
+                               onclick="
+                       $.ajaxSetup({ cache: false });
+                       $.get('@Url.Content("~/Services/EditCategory/"+item.Id)', function (data){
+                       $('#modal-body').html(data);});"
+                               href="#Edit" class="btn btn-primary btn--icon"><i class="zmdi zmdi-refresh"></i></a>
+                        </td>
+                        <td>
+                            <a data-toggle="modal"
+                               onclick="
+
+                       lan('@Url.Content("~/Services/RemoveCategory/"+item.Id)')"
+                               id="#" class="btn btn-danger btn--icon"><i class="zmdi zmdi-close"></i></a>
+                        </td>
+                    </tr>
+                }
+
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="AddCategory">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:fit-content;">
+            <div class="modal-header">
+                <h4 class="modal-title">Добавления Категории</h4>
+            </div>
+            <div id="modal-body1" class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="Edit">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:fit-content;">
+            <div class="modal-header">
+                <h4 class="modal-title">Редактирование</h4>
+            </div>
+            <div id="modal-body" class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>

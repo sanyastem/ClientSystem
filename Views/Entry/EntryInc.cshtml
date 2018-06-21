@@ -1,0 +1,66 @@
+﻿@model DataBase.Recording
+
+@{ 
+    Layout = null;
+}
+<div class="modal-body">
+    @using (Html.BeginForm(new { @id="fromEnd"}))
+    {
+        @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            <div class="col-md-10">
+                <div class="InSet"></div>
+                <input type="date" name="date" id="dateTime" placeholder="Дата" class="form-control" required />
+                <input type="time" name="time" id="time" placeholder="Время" min="8:00" max="22:00" class="form-control" required />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.IdClienty, ViewBag.CatSer as SelectList, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.IdServices, ViewBag.Serv as SelectList, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" value="Добавить" id="smbt" class="btn btn-default" />
+                <button type="button" class="btn btn-link" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+        <input type="submit" value="Добавить" id="smbts" class="btn btn-default" style="visibility:hidden;" />
+    </div>
+    }
+
+</div>
+<script>
+    var utc = new Date().toJSON().slice(0,10).replace(/-/g,'-');
+    $('#dt').attr('min', utc);
+    $("#smbt").click(function (e) {
+        var times = $("#time").val() + ':00';
+        var date = $("#dateTime").val().split('-');
+        console.log(times);
+        $.getJSON(location.protocol + '//' + location.host + '/Entry/TimeView/', { date: date[0], date1: date[1], date2:date[2]} , function (data) {
+            for (var i = 0; i < data.length; i++) {
+                console.log(data[i].dataT);
+                if (times === data[i].dataT) {
+                    $('.InSet').append(`<p>Данное время занято.</p>`);
+                    return false;
+                }
+                else {
+                    console.log('tut');
+                    $("#smbts").click();
+                }
+            }
+        });
+        
+
+    });
+</script>

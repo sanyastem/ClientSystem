@@ -1,45 +1,492 @@
-﻿<!DOCTYPE html>
-<html>
+﻿@using BisnesLogics
+<!DOCTYPE html>
+<html lang="ru">
+<!--[if IE 9 ]><html class="ie9"><![endif]-->
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title – приложение ASP.NET</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title</title>
 
+    <!-- Vendors -->
+    <!-- Animate CSS -->
+    <link href="@Url.Content("~/Content/vendors/bower_components/animate.css/animate.min.css")" rel="stylesheet">
+
+    <!-- Material Design Icons -->
+    <link href="@Url.Content("~/Content/vendors/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css")" rel="stylesheet">
+
+    <!-- Malihu Scrollbar -->
+    <link href="@Url.Content("~/Content/vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css")" rel="stylesheet">
+
+    <!-- Full Calendar -->
+    <link href="@Url.Content("~/Content/vendors/bower_components/fullcalendar/dist/fullcalendar.min.css")" rel="stylesheet">
+
+    <!-- Site CSS -->
+    <link href="@Url.Content("~/Content/app-1.min.css")" rel="stylesheet">
+
+    <!-- Page loader -->
+    <script src="@Url.Content("~/Scripts/page-loader.min.js")"></script>
+    <link href="@Url.Content("~/Content/vendors/bower_components/sweetalert2/dist/sweetalert2.min.css")" rel="stylesheet">
+
+    <!-- JS -->
+    <script src="@Url.Content("~/Content/vendors/bower_components/sweetalert2/dist/sweetalert2.js")"></script>
 </head>
+
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                @Html.ActionLink("Имя приложения", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Домашняя страница", "Index", "Home")</li>
-                    <li>@Html.ActionLink("О программе", "About", "Home")</li>
-                    <li>@Html.ActionLink("Контакт", "Contact", "Home")</li>
-                </ul>
-                @Html.Partial("_LoginPartial")
-            </div>
+    <!-- Page Loader -->
+    <div id="page-loader">
+        <div class="preloader preloader--xl preloader--light">
+            <svg viewBox="25 25 50 50">
+                <circle cx="50" cy="50" r="20" />
+            </svg>
         </div>
     </div>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year – приложение ASP.NET</p>
-        </footer>
-    </div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
+    <!-- Header -->
+    <header id="header">
+        <div class="logo">
+            <a href="@Url.Content("~/")" class="hidden-xs">
+                Система
+                <small>Услуг</small>
+            </a>
+            <i class="logo__trigger zmdi zmdi-menu" data-mae-action="block-open" data-mae-target="#navigation"></i>
+        </div>
+        @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+        {
+            @Html.AntiForgeryToken()
+            <ul class="top-menu">
+
+
+                <li class="top-menu__apps dropdown hidden-xs hidden-sm">
+                    <a data-toggle="dropdown" href="">
+                        <i class="zmdi zmdi-apps"></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li>
+                            <a href="@Url.Content("~/Entry/Index")">
+                                <i class="zmdi zmdi-calendar"></i>
+                                <small>Календарь</small>
+                            </a>
+                        </li>
+
+                        
+                        <li>
+                            @if (User.IsInRole("manager"))
+                            {
+                                <a href="@Url.Content("~/Home/Static")">
+                                    <i class="zmdi zmdi-trending-up"></i>
+                                    <small>Статистика</small>
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="#">
+                                    <i class="zmdi zmdi-trending-up"></i>
+                                    <small>Статистика</small>
+                                </a>
+                            }
+
+                        </li>
+                       
+                    </ul>
+                </li>
+                <li class="dropdown hidden-xs">
+                    <a data-toggle="dropdown" href=""><i class="zmdi zmdi-more-vert"></i></a>
+                    <ul class="dropdown-menu dropdown-menu--icon pull-right">
+                        <li class="hidden-xs">
+                            <a data-mae-action="fullscreen" href=""><i class="zmdi zmdi-fullscreen"></i> Полный экран</a>
+                        </li>
+                        <li>
+                            <a data-mae-action="clear-localstorage" href=""><i class="zmdi zmdi-delete"></i> Clear Local Storage</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="top-menu__alerts" data-mae-action="block-open" data-mae-target="#notifications" data-toggle="tab" data-target="#notifications__messages">
+                    <a href=""><i class="zmdi zmdi-notifications"></i></a>
+                </li>
+
+                <li class="top-menu__profile dropdown">
+                    <a data-toggle="dropdown" href="">
+                        @try
+                        {
+                            if (Viewsing.ViewImg(User.Identity.Name) != null)
+                            {
+                                @Html.Raw("<img src=\"data:image/jpeg;base64," + Convert.ToBase64String(Viewsing.ViewImg(User.Identity.Name)) + "\" />")<i></i>
+                            }
+                            else
+                            {
+                                <img src="@Url.Content("~/Content/demo/img/profile-pics/1.jpg")" alt="">
+                            }
+
+                        }
+                        catch
+                        {
+                            <img src="@Url.Content("~/Content/demo/img/profile-pics/1.jpg")" alt="">
+                        }
+                    </a>
+
+                    <ul class="dropdown-menu pull-right dropdown-menu--icon">
+                        <li>
+                            <a href="@Url.Content("~/Account/ShowProfile")"><i class="zmdi zmdi-account"></i> Профиль</a>
+                        </li>
+                        <li>
+                            <a href="@Url.Content("~/Account/Setting")"><i class="zmdi zmdi-settings"></i> Настройка</a>
+                        </li>
+                        <li>
+                            <a href="javascript:document.getElementById('logoutForm').submit()"><i class="zmdi zmdi-time-restore"></i> Выход</a>
+                        </li>
+                    </ul>
+
+                </li>
+
+            </ul>
+        }
+        <!--form class="top-search">
+            <input type="text" class="top-search__input" placeholder="Search for people, files & reports">
+            <i class="zmdi zmdi-search top-search__reset"></i>
+        </form-->
+    </header>
+
+    <section id="main">
+        <aside id="notifications">
+            <ul class="tab-nav tab-nav--justified tab-nav--icon">
+                <li><a class="user-alert__messages" href="#notifications__messages" data-toggle="tab"><i class="zmdi zmdi-email"></i></a></li>
+                <li><a class="user-alert__notifications" href="#notifications__updates" data-toggle="tab"><i class="zmdi zmdi-notifications"></i></a></li>
+                <li><a class="user-alert__tasks" href="#notifications__tasks" data-toggle="tab"><i class="zmdi zmdi-playlist-plus"></i></a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane" id="notifications__messages">
+                    <div class="list-group">
+                        <a href="" class="list-group-item media">
+                            <div class="pull-left">
+                                <img class="avatar-img" src="@Url.Content("~/Content/demo/img/profile-pics/1.jpg")" alt="">
+                            </div>
+
+                            <div class="media-body">
+                                <div class="list-group__heading">David Villa Jacobs</div>
+                                <small class="list-group__text">Sorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam mattis lobortis sapien non posuere</small>
+                            </div>
+                        </a>
+
+                        <a href="" class="list-group-item media">
+                            <div class="pull-left">
+                                <img class="avatar-img" src="@Url.Content("~/Content/demo/img/profile-pics/5.jpg")" alt="">
+                            </div>
+                            <div class="media-body">
+                                <div class="list-group__heading">Candice Barnes</div>
+                                <small class="list-group__text">Quisque non tortor ultricies, posuere elit id, lacinia purus curabitur.</small>
+                            </div>
+                        </a>
+
+                        <a href="" class="list-group-item media">
+                            <div class="pull-left">
+                                <img class="avatar-img" src="@Url.Content("~/Content/demo/img/profile-pics/3.jpg")" alt="">
+                            </div>
+                            <div class="media-body">
+                                <div class="list-group__heading">Jeannette Lawson</div>
+                                <small class="list-group__text">Donec congue tempus ligula, varius hendrerit mi hendrerit sit amet. Duis ac quam sit amet leo feugiat iaculis</small>
+                            </div>
+                        </a>
+
+                        <a href="" class="list-group-item media">
+                            <div class="pull-left">
+                                <img class="avatar-img" src="@Url.Content("~/Content/demo/img/profile-pics/4.jpg")" alt="">
+                            </div>
+                            <div class="media-body">
+                                <div class="list-group__heading">Darla Mckinney</div>
+                                <small class="list-group__text">Duis tincidunt augue nec sem dignissim scelerisque. Vestibulum rhoncus sapien sed nulla aliquam lacinia</small>
+                            </div>
+                        </a>
+
+                        <a href="" class="list-group-item media">
+                            <div class="pull-left">
+                                <img class="avatar-img" src="@Url.Content("~/Content/demo/img/profile-pics/2.jpg")" alt="">
+                            </div>
+                            <div class="media-body">
+                                <div class="list-group__heading">Rudolph Perez</div>
+                                <small class="list-group__text">Phasellus a ullamcorper lectus, sit amet viverra quam. In luctus tortor vel nulla pharetra bibendum</small>
+                            </div>
+                        </a>
+                    </div>
+
+                    <a href="" class="btn btn--float">
+                        <i class="zmdi zmdi-plus"></i>
+                    </a>
+                </div>
+
+                <div class="tab-pane" id="notifications__updates">
+                    <div class="list-group">
+                        <a href="" class="list-group-item media">
+                            <div class="pull-right">
+                                <img class="avatar-img" src="@Url.Content("~/Content/demo/img/profile-pics/1.jpg")" alt="">
+                            </div>
+
+                            <div class="media-body">
+                                <div class="list-group__heading">David Villa Jacobs</div>
+                                <small class="list-group__text">Sorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam mattis lobortis sapien non posuere</small>
+                            </div>
+                        </a>
+
+                        <a href="" class="list-group-item">
+                            <div class="list-group__heading">Candice Barnes</div>
+                            <small class="list-group__text">Quisque non tortor ultricies, posuere elit id, lacinia purus curabitur.</small>
+                        </a>
+
+                        <a href="" class="list-group-item">
+                            <div class="list-group__heading">Jeannette Lawson</div>
+                            <small class="list-group__text">Donec congue tempus ligula, varius hendrerit mi hendrerit sit amet. Duis ac quam sit amet leo feugiat iaculis</small>
+                        </a>
+
+                        <a href="" class="list-group-item media">
+                            <div class="pull-right">
+                                <img class="avatar-img" src="@Url.Content("~/Content/demo/img/profile-pics/4.jpg")" alt="">
+                            </div>
+                            <div class="media-body">
+                                <div class="list-group__heading">Darla Mckinney</div>
+                                <small class="list-group__text">Duis tincidunt augue nec sem dignissim scelerisque. Vestibulum rhoncus sapien sed nulla aliquam lacinia</small>
+                            </div>
+                        </a>
+
+                        <a href="" class="list-group-item media">
+                            <div class="pull-right">
+                                <img class="avatar-img" src="@Url.Content("~/Content/demo/img/profile-pics/2.jpg")" alt="">
+                            </div>
+                            <div class="media-body">
+                                <div class="list-group__heading">Rudolph Perez</div>
+                                <small class="list-group__text">Phasellus a ullamcorper lectus, sit amet viverra quam. In luctus tortor vel nulla pharetra bibendum</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="notifications__tasks">
+
+                    <div class="list-group">
+                        <h4 class="text-center">Заказы сегодня</h4>
+
+
+                    </div>
+
+
+                </div>
+            </div>
+        </aside>
+
+        <aside id="navigation">
+            <div class="navigation__header">
+                <i class="zmdi zmdi-long-arrow-left" data-mae-action="block-close"></i>
+            </div>
+
+            <div class="navigation__toggles">
+                <a href="" class="active" data-mae-action="block-open" data-mae-target="#notifications" data-toggle="tab" data-target="#notifications__messages">
+                    <i class="zmdi zmdi-email"></i>
+                </a>
+                <a href="" data-mae-action="block-open" data-mae-target="#notifications" data-toggle="tab" data-target="#notifications__updates">
+                    <i class="zmdi zmdi-notifications"></i>
+                </a>
+                <a href="" data-mae-action="block-open" data-mae-target="#notifications" data-toggle="tab" data-target="#notifications__tasks">
+                    <i class="zmdi zmdi-playlist-plus"></i>
+                </a>
+            </div>
+
+            <div class="navigation__menu c-overflow">
+                <ul>
+                    <li class="navigation__active">
+                        <a href="@Url.Content("~/")"><i class="zmdi zmdi-home"></i> Главная</a>
+                    </li>
+                    @if (User.IsInRole("admin"))
+                    {
+                        <li class="navigation__sub">
+                            <a href="#" data-mae-action="submenu-toggle"><i class="zmdi zmdi-account-circle zmdi-hc-fw"></i> Менеджера</a>
+                            <ul>
+                                <li><a href="@Url.Content("~/Account/AllManager")">Список менеджеров</a></li>
+                                <li><a href="@Url.Content("~/Account/Register")">Добавить менеджера</a></li>
+                            </ul>
+                        </li>}
+                    @if (User.IsInRole("manager"))
+                    {
+                        <li class="navigation__sub">
+                            <a href="#" data-mae-action="submenu-toggle"><i class="zmdi zmdi-accounts-list zmdi-hc-fw"></i> Клиенты</a>
+                            <ul>
+                                <li><a href="@Url.Content("~/Client/Category")">Категории клиентов</a></li>
+                                <li><a href="@Url.Content("~/Client/Index")">Все клиенты</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="navigation__active">
+                            <a href="@Url.Content("~/Entry/ViewList")"><i class="zmdi zmdi-calendar-check zmdi-hc-fw"></i> Запись</a>
+                        </li>
+                    }
+                    @if (User.IsInRole("admin"))
+                    {
+                        <li class="navigation__sub">
+                            <a href="#" data-mae-action="submenu-toggle"><i class="zmdi zmdi-account-circle zmdi-hc-fw"></i> Услуги</a>
+                            <ul>
+                                <li><a href="@Url.Content("~/Services/AllCategory")">Все категории услуг</a></li>
+                                <li><a href="@Url.Content("~/Services/Index")">Все услуги</a></li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </aside>
+
+        <section id="content">
+            @RenderBody()
+        </section>
+
+        <footer id="footer">
+            Алексей Севко <a href="@Url.Content("~/Content/help/index.htm")">Справка</a>
+
+
+        </footer>
+
+    </section>
+
+    <!-- Older IE Warning -->
+    <!--[if lt IE 9]>
+        <div class="ie-warning">
+            <h1>Warning!!</h1>
+            <p>You are using an outdated version of Internet Explorer, please upgrade <br/>to any of the following web browsers to access this website.</p>
+            <div class="ie-warning__container">
+                <ul class="ie-warning__download">
+                    <li>
+                        <a href="http://www.google.com/chrome/">
+                            <img src="img/browsers/chrome.png" alt="">
+                            <div>Chrome</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.mozilla.org/en-US/firefox/new/">
+                            <img src="img/browsers/firefox.png" alt="">
+                            <div>Firefox</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://www.opera.com">
+                            <img src="img/browsers/opera.png" alt="">
+                            <div>Opera</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.apple.com/safari/">
+                            <img src="img/browsers/safari.png" alt="">
+                            <div>Safari</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">
+                            <img src="img/browsers/ie.png" alt="">
+                            <div>IE (New)</div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <p>Sorry for the inconvenience!</p>
+        </div>
+    <![endif]-->
+    <!-- Javascript Libraries -->
+    <!-- jQuery -->
+    <script src="@Url.Content("~/Content/vendors/bower_components/jquery/dist/jquery.min.js")"></script>
+
+    <!-- Bootstrap -->
+    <script src="@Url.Content("~/Content/vendors/bower_components/bootstrap/dist/js/bootstrap.min.js")"></script>
+
+    <!-- Malihu ScrollBar -->
+    <script src="@Url.Content("~/Content/vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js")"></script>
+
+    <!-- Bootstrap Notify -->
+    <script src="@Url.Content("~/Content/vendors/bower_components/remarkable-bootstrap-notify/dist/bootstrap-notify.min.js")"></script>
+
+    <!-- Moment -->
+    <script src="@Url.Content("~/Content/vendors/bower_components/moment/min/moment.min.js")"></script>
+
+    <!-- FullCalendar -->
+    <script src="@Url.Content("~/Content/vendors/bower_components/fullcalendar/dist/fullcalendar.min.js")"></script>
+
+    <!-- Simple Weather -->
+    <script src="@Url.Content("~/Content/vendors/bower_components/simpleWeather/jquery.simpleWeather.min.js")"></script>
+
+    <!-- Salvattore -->
+    <script src="@Url.Content("~/Content/vendors/bower_components/salvattore/dist/salvattore.min.js")"></script>
+
+    <!-- Flot Charts -->
+
+        <script src="@Url.Content("~/Content/vendors/bower_components/flot/jquery.flot.js")"></script>
+   
+        <script src="@Url.Content("~/Content/vendors/bower_components/flot/jquery.flot.pie.js")"></script>
+    
+
+    <script src="@Url.Content("~/Content/vendors/bower_components/flot/jquery.flot.resize.js")"></script>
+    <script src="@Url.Content("~/Content/vendors/bower_components/flot.curvedlines/curvedLines.js")"></script>
+
+    <!-- Sparkline Charts -->
+    <script src="@Url.Content("~/Content/vendors/jquery.sparkline/jquery.sparkline.min.js")"></script>
+
+    <!-- EasyPie Charts -->
+    <script src="@Url.Content("~/Content/vendors/bower_components/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js")"></script>
+
+    <!-- Placeholder for IE9 -->
+    <!--[if IE 9 ]>
+        <script src="@Url.Content("~/Content/vendors/bower_components/jquery-placeholder/jquery.placeholder.min.js")"></script>
+    <![endif]-->
+    <!-- Demo Only -->
+    <script src="@Url.Content("~/Content/demo/js/flot-charts/curved-line.js")"></script>
+    <script src="@Url.Content("~/Content/demo/js/flot-charts/line.js")"></script>
+    <script src="@Url.Content("~/Content/demo/js/easy-pie-charts.js")"></script>
+    <script src="@Url.Content("~/Content/demo/js/misc.js")"></script>
+
+    <script src="@Url.Content("~/Content/demo/js/sparkline-charts.js")"></script>
+    <script src="@Url.Content("~/Content/demo/js/calendar.js")"></script>
+    @RenderSection("js", false)
+    <!-- Site Functions & Actions -->
+    <script src="@Url.Content("~/Scripts/app.min.js")"></script>
+    <script src="@Url.Content("~/Content/demo/js/flot-charts/pie.js")"></script>
+    @Scripts.Render("~/bundles/knockout")
+    <script>
+        function lan(d) {
+            swal({
+                title: "Удалить запись?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Удалить",
+                showCancelButton: "Отмена"
+            }).then(function () {
+                $.get(d);
+
+                swal(
+                    "Удален!"
+
+                ).then(function () {
+                    window.open(location.href, "_self", false);
+                });
+
+            });
+        }
+        function RemoveClient(d) {
+            swal({
+                title: "Удалить запись?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Удалить",
+                showCancelButton: "Отмена"
+            }).then(function () {
+                $.get(d);
+
+                swal(
+                    "Удален!"
+
+                ).then(function () {
+                    window.open(location.href, "_self", false);
+                });
+
+            });
+        }
+
+
+    </script>
 </body>
 </html>

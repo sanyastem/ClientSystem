@@ -1,0 +1,42 @@
+﻿@model DataBase.ApplicationUser
+
+@{
+    ViewBag.Title = Model.UserName;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content--boxed-sm">
+    <header class="content__header">
+        <h2>@Model.UserName</h2>
+    </header>
+    <div class="card profile">
+        <div class="profile__img">
+            @try
+    {
+        if (Model.Image != null)
+        {
+            @Html.Raw("<img src=\"data:image/jpeg;base64," + Convert.ToBase64String(Model.Image) + "\" />")
+}
+else
+{
+        <img src="@Url.Content("~/Content/demo/img/profile-pics/1.jpg")" alt="">
+}
+
+}
+catch
+{
+        <img src="@Url.Content("~/Content/demo/img/profile-pics/1.jpg")" alt="">
+}
+          
+        </div>
+        <div class="profile__info">
+            
+            <ul class="icon-list">
+                <li><i class="zmdi zmdi-phone"></i>@Model.PhoneNumber </li>
+                <li><i class="zmdi zmdi-email"></i>@Model.Email</li>
+            </ul>
+        </div>
+    </div>
+    
+</div>
+

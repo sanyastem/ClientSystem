@@ -1,0 +1,20 @@
+﻿
+@{
+    ViewBag.Title = "Статистика";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+   
+</script>
+<div class="col-md-12">
+    <div class="card">
+        <div class="card__header">
+            <h2>Количество записей у @User.Identity.Name ,за @DateTime.Now.Month.@DateTime.Now.Year</h2>
+        </div>
+        <div class="card__body">
+            <div id="chart-pie" class="flot-chart flot-chart--lg"></div>
+            <div class="flot-chart-legend flot-chart-legend--pie"></div>
+        </div>
+    </div>
+</div>
+

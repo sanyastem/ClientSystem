@@ -1,0 +1,34 @@
+﻿@model DataBase.Services
+@{ 
+    Layout = null;
+}
+<div class="modal-body">
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            Название
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt>
+            Цена
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Price)
+        </dd>
+        <dt>
+            Категория
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CategoryOfService.Name)
+        </dd>
+    </dl>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-link" data-dismiss="modal">Закрыть</button>
+    </div>
+</div>

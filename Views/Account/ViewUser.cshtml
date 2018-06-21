@@ -1,0 +1,61 @@
+﻿@model DataBase.ApplicationUser
+@{ 
+    Layout = null;
+}
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>
+                        Аватарка
+                    </dt>
+
+                    <dd>
+                        <div class="card__body--sm">
+                            @try
+    {
+        if (Model.Image != null)
+        {
+                        @Html.Raw("<img class='animated' style='width: 50%;border-radius:50%;' src=\"data:image/jpeg;base64," + Convert.ToBase64String(Model.Image) + "\" />")
+}
+else
+{
+                        <img class='animated' style='width: 50%;border-radius:50%;' src="@Url.Content("~/Content/demo/img/profile-pics/1.jpg")" alt="">
+}
+
+}
+catch
+{
+                        <img class='animated' style='width: 50%;border-radius:50%;' src="@Url.Content("~/Content/demo/img/profile-pics/1.jpg")" alt="">
+}
+                            
+                        </div>
+                    </dd>
+
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Email)
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.Email)
+                    </dd>
+
+                    <dt>
+                        Номер телефона
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.PhoneNumber)
+                    </dd>
+
+                    <dt>
+                        Имя пользователя
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.UserName)
+                    </dd>
+
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Закрыть</button>
+            </div>

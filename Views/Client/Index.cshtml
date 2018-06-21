@@ -1,0 +1,110 @@
+﻿@model IEnumerable<DataBase.Client>
+
+@{
+    ViewBag.Title = "Список клиентов";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="card__header">
+        <h2>Все клиенты</h2>
+
+    </div>
+    
+    <div class="card__body">
+        <a data-toggle="modal"
+           onclick="
+                       $.ajaxSetup({ cache: false });
+                       $.get('@Url.Content("~/Client/Add")', function (data){
+                       $('#modal-body1').html(data);});"
+           href="#AddClient" class="btn btn-success">Добавить клиента</a>
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <th>
+                        Имя
+                    </th>
+                    
+                    <th>
+                        Редактирование
+                    </th>
+                    <th>
+                        Просмотр
+                    </th>
+                    <th>
+                        Удаления
+                    </th>
+                </tr>
+
+                @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FIO)
+                    </td>
+                    <td>
+                        <a data-toggle="modal"
+                           onclick="
+                       $.ajaxSetup({ cache: false });
+                       $.get('@Url.Content("~/Client/Edit/"+item.Id)', function (data){
+                       $('#modal-body').html(data);});"
+                           href="#Edit" class="btn btn-primary btn--icon"><i class="zmdi zmdi-refresh"></i></a>
+
+                    </td>
+                    <td>
+                        <a data-toggle="modal"
+                           onclick="
+                       $.ajaxSetup({ cache: false });
+                       $.get('@Url.Content("~/Client/ViewClient/"+item.Id)', function (data){
+                       $('#modal-body2').html(data);});"
+                           href="#Views" class="btn btn-success btn--icon"><i class="zmdi zmdi-more-vert"></i></a>
+                    </td>
+                    <td>
+                        <a data-toggle="modal"
+                           onclick="
+                       
+                       RemoveClient('@Url.Content("~/Client/Remove/"+item.Id)')"
+                           id="#" class="btn btn-danger btn--icon"><i class="zmdi zmdi-close"></i></a>
+                    </td>
+                </tr>
+        }
+
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="AddClient">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:fit-content;">
+            <div class="modal-header">
+                <h4 class="modal-title">Добавления клиента</h4>
+            </div>
+            <div id="modal-body1" class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="Edit">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:fit-content;">
+            <div class="modal-header">
+                <h4 class="modal-title">Редактирование</h4>
+            </div>
+            <div id="modal-body" class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="Views">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:fit-content;">
+            <div class="modal-header">
+                <h4 class="modal-title">Информация о клиенте</h4>
+            </div>
+            <div id="modal-body2" class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,41 +1,57 @@
 ﻿@model ClientSystem.Models.RegisterViewModel
 @{
-    ViewBag.Title = "Регистрация";
+    ViewBag.Title = "Добавить менеджера";
 }
+<div class="content__header">
+    <h2>@ViewBag.Title.</h2>
+</div>
+<div class="card">
 
-<h2>@ViewBag.Title.</h2>
+   
+        <div class="card__header">
+            
+            <h4>Добавление менеджера</h4>
+            <hr />
+        </div>
+        <div class="card__body">
+            @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary("", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @required = "required", @placeholder = "Email" })
+            <i class="form-group__bar"></i>
+        </div>
+        <div class="form-group">
+            @Html.TextBoxFor(m => m.Name, new { @class = "form-control", @required = "required", @placeholder = "Имя" })
+            <i class="form-group__bar"></i>
+        </div>
+        <div class="form-group">
+            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", @required = "required", @placeholder = "Телефон" })
+            <i class="form-group__bar"></i>
+        </div>
+        <div class="form-group">
+            @Html.PasswordFor(m => m.Password, new { @class = "form-control", @required = "required", @placeholder = "Пароль" })
+            <i class="form-group__bar"></i>
+        </div>
+        <div class="form-group">
+            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", @required = "required", @placeholder = "Потвердить пароль" })
+            <i class="form-group__bar"></i>
+        </div>
+        <div class="fileinput fileinput-new" data-provides="fileinput">
+            <div class="fileinput-preview" data-trigger="fileinput" style="line-height: 150px;"></div>
 
-@using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-{
-    @Html.AntiForgeryToken()
-    <h4>Создайте новую учетную запись.</h4>
-    <hr />
-    @Html.ValidationSummary("", new { @class = "text-danger" })
-    <div class="form-group">
-        @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })
-        <div class="col-md-10">
-            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+            <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">Удалить</a>
+            <span class="btn btn-default btn-file">
+                <span class="fileinput-new">Выберете изображения</span>
+                <span class="fileinput-exists">Выбрать</span>
+                <input type="hidden" value="" name="..."><input type="file" name="uploadImage" required>
+            </span>
         </div>
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label" })
-        <div class="col-md-10">
-            @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+        <div class="form-group">
+            <input type="submit" class="btn btn-default" value="Добавить" />
         </div>
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-2 control-label" })
-        <div class="col-md-10">
-            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" class="btn btn-default" value="Регистрация" />
-        </div>
-    </div>
 }
+        </div>
 
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-}
+</div>

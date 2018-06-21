@@ -9,6 +9,9 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using ClientSystem.Models;
+using DataBase;
+using System.IO;
+using System.Collections.Generic;
 
 namespace ClientSystem.Controllers
 {
@@ -60,7 +63,102 @@ namespace ClientSystem.Controllers
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
+        public ActionResult Setting()
+        {
+            return View();
+        }
+        public ActionResult EditPassword()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<ActionResult> EditPassword(EditPassword model)
+        {
+            ApplicationUser user = await UserManager.FindByEmailAsync(User.Identity.Name);
+            if (user != null)
+            {
 
+
+                IdentityResult validPass = null;
+                if (model.Password!=null)
+                {
+                    validPass = await UserManager.PasswordValidator.ValidateAsync(model.Password);
+                    if (validPass.Succeeded)
+                    {
+                        user.PasswordHash =
+                            UserManager.PasswordHasher.HashPassword(model.Password);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Что-то пошло не так");
+                    }
+                }
+                IdentityResult result = await UserManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Setting", "Account");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Что-то пошло не так");
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "Пользователь не найден");
+            }
+
+            return View(model);
+        }
+        [HttpGet]
+        public async Task<ActionResult> Edit()
+        {
+            ApplicationUser user = await UserManager.FindByEmailAsync(User.Identity.Name);
+            if (user != null)
+            {
+                EditModel model = new EditModel { Email = user.Email,Image = user.Image,Name = user.UserName,Phone = user.PhoneNumber };
+                return View(model);
+            }
+            return RedirectToAction("Login", "Account");
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Edit(EditModel model, HttpPostedFileBase uploadImage)
+        {
+            ApplicationUser user = await UserManager.FindByEmailAsync(User.Identity.Name);
+            if (user != null )
+            {
+               
+                if (uploadImage!= null)
+                {
+                    byte[] imageData = null;
+                    // считываем переданный файл в массив байтов
+                    using (var binaryReader = new BinaryReader(uploadImage.InputStream))
+                    {
+                        imageData = binaryReader.ReadBytes(uploadImage.ContentLength);
+                    }
+                    user.Image = imageData;
+                }
+                user.PhoneNumber = model.Phone;
+                user.UserName = model.Name;
+                user.Email = model.Email;
+                IdentityResult result = await UserManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Setting", "Account");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Что-то пошло не так");
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "Пользователь не найден");
+            }
+
+            return View(model);
+        }
         //
         // POST: /Account/Login
         [HttpPost]
@@ -72,10 +170,10 @@ namespace ClientSystem.Controllers
             {
                 return View(model);
             }
-
+            ApplicationUser signedUser = UserManager.FindByEmail(model.Email);
             // Сбои при входе не приводят к блокированию учетной записи
             // Чтобы ошибки при вводе пароля инициировали блокирование учетной записи, замените на shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
+            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: true);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -83,14 +181,38 @@ namespace ClientSystem.Controllers
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
-                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl,  model.RememberMe });
                 case SignInStatus.Failure:
                 default:
                     ModelState.AddModelError("", "Неудачная попытка входа.");
                     return View(model);
             }
         }
+        public ActionResult ShowProfile()
+        {
+            var db = new ApplicationDbContext();
+            var user = User.Identity.GetUserId();
+            return View(db.Users.Where(x => x.Id == user).FirstOrDefault());
+        }
+        public ActionResult Remove(string id)
+        {
+            try
+            {
 
+            
+            using (var db =new ApplicationDbContext())
+            {
+                db.Users.Remove(db.Users.Find(id));
+                db.SaveChanges();
+            }
+            return RedirectToAction("AllUser");
+            }
+            catch (Exception)
+            {
+
+                return HttpNotFound();
+            }
+        }
         //
         // GET: /Account/VerifyCode
         [AllowAnonymous]
@@ -147,16 +269,23 @@ namespace ClientSystem.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterViewModel model)
+        public async Task<ActionResult> Register(RegisterViewModel model, HttpPostedFileBase uploadImage)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && uploadImage != null)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                byte[] imageData = null;
+                // считываем переданный файл в массив байтов
+                using (var binaryReader = new BinaryReader(uploadImage.InputStream))
+                {
+                    imageData = binaryReader.ReadBytes(uploadImage.ContentLength);
+                }
+                
+                var user = new ApplicationUser { UserName = model.Email,FIO=model.Name, Email = model.Email,Image = imageData,PhoneNumber = model.Phone };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
+                   // await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+                    await UserManager.AddToRoleAsync(user.Id, "manager");
                     // Дополнительные сведения о включении подтверждения учетной записи и сброса пароля см. на странице https://go.microsoft.com/fwlink/?LinkID=320771.
                     // Отправка сообщения электронной почты с этой ссылкой
                     // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
@@ -171,7 +300,23 @@ namespace ClientSystem.Controllers
             // Появление этого сообщения означает наличие ошибки; повторное отображение формы
             return View(model);
         }
+        [HttpGet]
+        public ActionResult ViewUser(string id)
+        {
+            try
+            {
+                using (var db = new ApplicationDbContext())
+                {
+                    return View(db.Users.Find(id));
+                }
+                
+            }
+            catch (Exception)
+            {
 
+                return HttpNotFound();
+            }
+        }
         //
         // GET: /Account/ConfirmEmail
         [AllowAnonymous]
@@ -402,7 +547,32 @@ namespace ClientSystem.Controllers
         {
             return View();
         }
+        public ActionResult AllManager()
+        {
+            ApplicationUserManager userManager = HttpContext.GetOwinContext()
+                                              .GetUserManager<ApplicationUserManager>();
+            using (var context = new ApplicationDbContext())
+            {
+                List<UserModel> user = new List<UserModel>();
 
+
+                foreach (var item in context.Users.ToList())
+                {
+                    
+                    UserModel ur = new UserModel();
+                    ur.AspNetUserId = Guid.Parse(item.Id);
+                    ur.Name = item.FIO;
+                    var role = item.Roles.First().RoleId;
+                    
+                        ur.Role = context.Roles.Where(x => x.Id == role).First().Name;
+                    
+                    user.Add(ur);
+                }
+
+                return View(user);
+
+            }
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)

@@ -1,0 +1,64 @@
+﻿@model IEnumerable<DataBase.UserModel>
+
+@{
+    ViewBag.Title = "Все менеджера";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card__header">
+        <h2>Все менеджера</h2>
+    </div>
+    <div class="card__body">
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <th>
+                        Имя пользователя
+                    </th>
+                    <th>
+                        Роль
+                    </th>
+                    <th>Просмотр</th>
+                    <th>Удалить</th>
+                </tr>
+
+                @foreach (var item in Model)
+    {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Role)
+                </td>
+                <td>
+                    <a data-toggle="modal"
+                       onclick="
+                       $.ajaxSetup({ cache: false });
+                       $.get('@Url.Content("~/Account/ViewUser/"+item.AspNetUserId)', function (data){
+                       $('#modal-body').html(data);});"
+                       href="#Views" class="btn btn-success btn--icon"><i class="zmdi zmdi-more-vert"></i></a>
+                </td>
+                <td>
+                    <button  onclick="lan('@Url.Content("~/Account/Remove/"+item.AspNetUserId)')" href="#" class="btn btn-danger btn--icon"><i class="zmdi zmdi-close"></i></button>
+                </td>
+            </tr>
+}
+
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="Views">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:fit-content;">
+            <div class="modal-header">
+                <h4 class="modal-title">Информация о пользователе</h4>
+            </div>
+            <div id="modal-body" class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>

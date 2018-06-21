@@ -6,11 +6,13 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
 using ClientSystem.Models;
+using DataBase;
 
 namespace ClientSystem
 {
     public partial class Startup
     {
+
         // Дополнительные сведения о настройке аутентификации см. на странице https://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
